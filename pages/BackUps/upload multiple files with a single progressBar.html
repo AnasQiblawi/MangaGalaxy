@@ -1,0 +1,79 @@
+<!-- HTML form for uploading files -->
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" id="fileInput" accept="image/*" multiple>
+    <button type="button" onclick="document.querySelector('#fileInput').click()">Select files</button>
+    <button type="submit">Upload</button>
+</form>
+
+
+<!-- Progress Bar -->
+<div>
+    <progress id="total-progress-bar" value="0" max="100"></progress>
+    <span id="total-progress-percentage"></span>
+</div>
+
+
+
+<!-- Script -->
+<script>
+    
+    // Listen for form submit
+    document.querySelector('form').addEventListener('submit', e => {
+        e.preventDefault();
+        // Get the file input
+        const fileInput = document.querySelector('input[type="file"]');
+        // Create a new FormData object
+        const formData = new FormData();
+        let isValid = true;
+        let errorMessage = '';
+
+        // Validate file input
+        if (!fileInput.files.length) {
+            errorMessage = 'Please select at least one file to upload.';
+            isValid = false;
+        }
+
+        // Only accept image files
+        for (let i = 0; i < fileInput.files.length; i++) {
+            if (!fileInput.files[i].type.match(/image\/.*/)) {
+                errorMessage = fileInput.files[i].name + ' is not an image file.';
+                isValid = false;
+                break;
+            }
+            formData.append('files', fileInput.files[i]);
+        }
+
+        if (!isValid) {
+            // Handle errors
+            console.error(errorMessage);
+            alert(errorMessage);
+            return;
+        }
+
+        // Create a new XHR object
+        const xhr = new XMLHttpRequest()
+
+        // Listen for the upload progress
+        xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+                // Update the progress bar
+                const percentComplete = (e.loaded / e.total) * 100;
+                document.querySelector('#total-progress-bar').value = percentComplete;
+                document.querySelector('#total-progress-percentage').innerHTML = percentComplete + '%';
+            }
+        })
+
+        // Listen for response
+        xhr.addEventListener('load', e => {
+            if (xhr.status === 200) {
+                alert('Upload Successful!');
+            } else {
+                alert('Error uploading files.');
+            }
+        });
+
+        // Send the FormData object
+        xhr.open('POST', '/upload');
+        xhr.send(formData);
+    });
+</script>

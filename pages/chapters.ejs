@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Chapters List</title>
+    <%- include("_parts/_headers.ejs", {}) %>
+
+    <style>
+        .href, .pointer {
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background-color: #4c4c4c;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <!-- Container -->
+    <div class="container">
+        <div class=" my-4">
+
+            <nav class="navbar navbar-expand-lg navbar-dark rounded-3 bg-gray m-2">
+                <div class="container-fluid">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page"><a href="#"><%- manhwaName %></a></li>
+                        </ol>
+                    </nav>
+                    
+
+
+                    <!-- Avatar -->
+                    <div class="dropdown">
+                        <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuAvatar"
+                            role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                            <img src="/assets/imgs/user.webp" class="rounded-circle" height="25"
+                                alt="Black and White Portrait of a Man" loading="lazy" />
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+                            <li><a class="dropdown-item" href="#">My profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                    </div>
+                    <!-- End - Avatar -->
+
+
+                </div>
+            </nav>
+            
+            <!-- Top Banner -->
+            <div class="rounded-3 px-0 m-0 my-4 mx-2 bg-gray shadow-3-strong" id="top">
+                <div class="container-fluid d-flex align-items-center justify-content-between align-items-stretch p-0 m-0" style="min-height: 100px;">
+                    <!-- Left Side -->
+                    <div style="width: 100%;" class="gif-bg" ></div>
+                    <!-- Right Side -->
+                    <button type="button" id="AddChapterButton" sound="6" class="btn btn-primary" data-mdb-ripple-color="dark" style="width: 150px;">+ New Chapter</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="mx-2 mb-3 rounded-3" style="min-height: 60vh; background-color: #404040;">
+                <table class="table text-light rounded-3" id="tableofChpters">
+                    <thead>
+                        <tr>
+                            <!-- <th scope="col">#</th> -->
+                            <th scope="col">Title</th>
+                            <th scope="col">Images</th>
+                            <th scope="col">Size</th>
+                            <th scope="col" style="width: 30px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Title</td>
+                            <td>6</td>
+                            <td>20 MB</td>
+                            <td>Delete</td>
+                        </tr>
+                        -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div> <!-- End - Container -->
+
+
+
+
+
+
+
+
+
+    <!-- MDB -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/mdb-ui-kit_6.1.0_mdb.min.js"></script>
+    <!-- jquery -->
+    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/jquery-3.6.3.min.js"></script>
+
+
+
+
+    <script>
+        const manhwaName = `<%- manhwaName %>`;
+
+        // Generate Chapters List
+        refreshChaptersList()
+        function refreshChaptersList() {
+            $.ajax({
+                type: "GET",
+                url: `/api/manhwa/${manhwaName}`,
+                dataType: "json",
+                success: function (res) { 
+                    buildChapterssList(res.chaptersList) 
+                }
+            })
+        };
+
+        function buildChapterssList(chaptersList) {
+            // Empty old list HTML elemnts
+            $("#tableofChpters tbody").empty();
+            // loop & add new HTML elements        
+            // Build Table
+            chaptersList
+                .filter(chapter => chapter.isDirectory)
+                .forEach((chapter, i) => {
+                    $("#tableofChpters tbody").append(`
+                        <tr>
+                            <!-- <th scope="row">${i + 1}</th> -->
+                            <td class="href" href="/manhwa/${manhwaName}/${chapter.name}">${chapter.name}</td>
+                            <td class="href" href="/manhwa/${manhwaName}/${chapter.name}">${chapter.contents.length}</td>
+                            <!-- We have to calculate the sum size from all images inside the chapter -->
+                            <td class="href" href="/manhwa/${manhwaName}/${chapter.name}">${formatFileSize(chaptersList[i].contents.reduce((a, b) => a + b.size, 0))}</td>
+                            <td>
+                                <i class="fa fa-trash pointer" delete-chapter="${chapter.name}" style="color: #e97171;"></i>   
+                            </td>
+                        </tr>
+                    `);
+            });
+        };
+
+
+
+
+
+
+
+        // Add New Manhwa
+        $("#AddChapterButton").on("click", function () {
+            // playAlert(sounds[4])
+            Swal.fire({
+                title: "Add new Chapter?",
+                text: "Write the chapter Title 👇",
+                color: "white" ,
+                icon: "info",
+                background: `
+                    linear-gradient(rgba(0, 0, 0, 0), 
+                    rgba(0, 0, 0, 0)), 
+                    black url(/assets/imgs/hand_energy.gif) 
+                    center center
+                    no-repeat`,
+                backdrop: `
+                    rgba(0, 0, 0, 0.5)
+                    url("/images/nyan-cat.gif")
+                    left top
+                    no-repeat 
+                `,
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Cancel 😬",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "Create 😤",
+                input: "text",
+            }).then((result) => {
+                console.log(result)
+                let { isConfirmed, value } = result;
+                if (isConfirmed && value) {
+                    // Post request
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/chapter",
+                        data: { title: value, manhwaName },
+                        dataType: "json"
+                    }, function (data) { })
+                        // Success
+                        .done(function (data) {
+                            Swal.fire(
+                                "Created!",
+                                "New Chapter has been created.",
+                                "success"
+                            );
+                        })
+                        // Fail
+                        .fail(function (data) {
+                            console.log(data)
+                            Swal.fire(
+                                "Error!",
+                                data?.responseJSON?.note,
+                                "error"
+                            );
+                        })
+                        // Finished
+                        // .always(function (data) {
+                        //     console.log("finished");
+                        // });
+
+                    // refresh chapters list
+                    refreshChaptersList()
+                    return
+                };
+                // Sound
+                playAlert("funk")
+            })
+        });
+
+
+
+
+
+        
+
+        
+        // delete Chapter
+        $(document).on("click", "[delete-chapter]", function (e) {
+            e.preventDefault()
+            let chapterName = $(this).attr("delete-chapter");
+            
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!",
+                color:"white",
+                background: `
+                    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                    black url(/assets/imgs/hand.gif) 
+                    center center 
+                    no-repeat`
+            }).then((result) => {
+                // Yes delete.
+                if (result.isConfirmed) {
+                    // Deleting request
+                    return $.ajax({
+                        type: "delete",
+                        url: "/api/chapter",
+                        data: { title: chapterName, manhwa: manhwaName },
+                        dataType: "json",
+                        success: function (res) {
+                            Swal.fire(
+                                "Deleted!",
+                                "Your chapter has been deleted.",
+                                "success"
+                            );
+                            // refresh chapters list
+                            refreshChaptersList()
+                        },
+                        error: (err) => { 
+                            console.log(err);
+                            Swal.fire(
+                                "Error!",
+                                "Your chapter could not be deleted.",
+                                "error"
+                            );
+                        }
+                    });
+                };
+                // Cancel Delete
+            });
+        });
+
+
+
+
+        
+
+
+    </script>
+
+
+
+    <!-- Alert Sounds -->
+    <%- include("_parts/_alertSounds.ejs", {}) %>
+
+    
+    <!-- Useful Scripts that I need at the end of my code -->
+    <%- include("_parts/_scripts_footer.ejs", {}) %>
+
+</body>
+
+
+</html>
+
+

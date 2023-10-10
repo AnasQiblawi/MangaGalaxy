@@ -1,0 +1,61 @@
+<!-- <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+<script defer src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script> -->
+<script src="/assets/cdn/jquery-3.6.3.min.js"></script>
+<script defer src="/assets/cdn/1.13.1_jquery-ui.min.js"></script>
+
+<div id="sortable-list">
+    <ul></ul>
+</div>
+
+<script>
+    var imageArray = [
+        "/assets/imgs/anime_girl.gif",
+        "/assets/imgs/cat_eyes.gif",
+        "/assets/imgs/hand.gif",
+        "/assets/imgs/hand_energy.gif",
+    ]
+
+    $(document).ready(function () {
+        for (var i = 0; i < imageArray.length; i++) {
+            $("#sortable-list ul").append(`
+                    <div>
+                        <img src="${imageArray[i]}" alt="image${i + 1}">
+                        <!-- <button class="delete-button">Delete</button> -->
+                    </div>`);
+        }
+
+        $("#sortable-list ul").sortable({
+            items: "div",
+            handle: "img",
+            update: function (event, ui) {
+                var newImageArray = [];
+                $("#sortable-list ul div img").each(function () {
+                    newImageArray.push($(this).attr("src"));
+                });
+                imageArray = newImageArray;
+                console.log(imageArray);
+            }
+        });
+
+        $(".delete-button").click(function () {
+            var imageToDelete = $(this).prev().attr("src");
+            var index = imageArray.indexOf(imageToDelete);
+            imageArray.splice(index, 1);
+            $(this).parent().remove();
+        });
+    });
+</script>
+
+
+<style>
+    ul div {
+        border: 1px solid gray;
+        margin: 0;
+        padding: 0;
+        border-radius: 5px;
+    }
+
+    img {
+        width: 100px
+    }
+</style>

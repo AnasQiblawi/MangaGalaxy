@@ -1,0 +1,38 @@
+
+<!-- Floating Button -->
+<%- include('_floating_button.ejs') %>
+
+
+<script>
+    // remove last '/' frrom url
+    // only if url ends with '/'
+    if (window.location.href.toString().split('').reverse()[0] == '/') {
+        var newURL = window.location.href.toString().split('');
+        newURL.pop();
+        newURL = newURL.join('');
+        history.replaceState('', '', newURL);
+    };
+
+
+    // add 'href' attripute ability to all tag elemens
+    $(document).on("click", ".href", function () {
+        window.location.href = $(this).attr('href');
+    });
+
+
+    $(document).on("click", "[noDefault]", function (e) {
+        e.preventDefault();
+    });
+
+
+    // File size readable formats
+    // formatFileSize(5000, 2) == 5 KB
+    function formatFileSize(bytes, decimalPoint) {
+        if (bytes == 0) return '0 Bytes';
+        var k = 1000,
+            dm = decimalPoint || 2,
+            sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+            i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    };
+</script>

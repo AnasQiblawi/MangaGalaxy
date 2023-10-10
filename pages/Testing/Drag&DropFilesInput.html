@@ -1,0 +1,52 @@
+<style>
+    #drop-area {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+  
+    #drop-area p {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+  
+    #fileElem {
+      display: none;
+    }
+  </style>
+  <div id="drop-area">
+    <form class="my-form">
+      <p>Drag and drop files here or click to browse</p>
+      <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
+    </form>
+  </div>
+  
+  <script>
+    function handleFiles(files) {
+      // Handle the files here (e.g. upload to a server)
+      console.log(files);
+    }
+  
+    // Allow "drop" event on the drop area
+    let dropArea = document.getElementById("drop-area");
+    document.getElementById("drop-area").onclick = () => document.querySelector('#fileElem').click()
+    dropArea.addEventListener("dragenter", preventDefaults, false);
+    dropArea.addEventListener("dragover", preventDefaults, false);
+    dropArea.addEventListener("dragleave", preventDefaults, false);
+    dropArea.addEventListener("drop", preventDefaults, false);
+    dropArea.addEventListener("drop", handleDrop, false);
+  
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  
+    function handleDrop(e) {
+      let dt = e.dataTransfer;
+      let files = dt.files;
+  
+      handleFiles(files);
+    }
+  </script>
+  

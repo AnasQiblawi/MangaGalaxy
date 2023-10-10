@@ -1,0 +1,16 @@
+<!-- Alert Sounds -->
+<!-- https://github.com/azer/alert -->
+<script src="/assets/cdn/alert.js"></script>
+<script>
+    // (document.querySelector('[sound]')).addEventListener("click", function () {
+    //     let soundsList = ['bottle', 'glass', 'funk', 'morse', 'purr', 'tink', 'submarine'];
+    //     let sound = this.getAttribute('sound');
+    //     playAlert(soundsList[sound]);
+    // });
+
+    $(document).on("click", "[sound]", function () {
+        let soundsList = ['bottle', 'glass', 'funk', 'morse', 'purr', 'tink', 'submarine']
+        let sound = $(this).attr('sound')
+        playAlert(soundsList[sound])
+    });
+</script>

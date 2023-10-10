@@ -1,0 +1,120 @@
+<html>
+
+<head>
+    <title>Files</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.dark.min.css" rel="stylesheet" />
+
+    <style>
+        html {
+            color-scheme: dark;
+        }
+
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        a {
+            /* margin: 3px; */
+            color: #fff !important;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+
+    <div class="container">
+        <div class="row row-cols-1 p-3 my-5 mx-0 bg-light bg-gradient text-light rounded-3 shadow-3-strong" style="min-height: calc(100vh - 100px);">
+
+
+            <div class="list-group filesList">
+
+                <!-- <div class="list-group-item px-3 my-1 border-0 rounded-2 active text-light">
+                    <a href="#">The current link item</a>
+                    <a href="#!" role="button" class="float-end py-1 delete" fileName="${file.name}">
+                        <i style="color: rgb(245, 64, 64);" class="fas fa-trash-alt"></i>
+                    </a>
+                </div> -->
+
+                <!-- <a href="#" class="list-group-item border-0 rounded-2 my-1 active text-light">A second link item</a> -->
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.js"></script>
+    <!-- jquery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+
+    <script>
+        // a List of files names
+        const filesList = <%- files %>
+
+        // build files list HTML code
+        filesList.forEach(file => {
+            $('.filesList').append(`
+                <div class="list-group-item px-3 my-1 border-0 rounded-2 active text-light">
+                    <a href="/file/${file}">${file}</a>
+                    <a href="#!" role="button" class="float-end py-1 delete" fileName="${file}">
+                        <i style="color: rgb(245, 64, 64);" class="fas fa-trash-alt"></i>
+                    </a>
+                </div>
+            `);
+            
+        });
+
+
+
+
+
+        // Delete Button
+        $(document).on("click", ".delete", function () {
+            // this.preventDefault();
+
+            // Remove uplodeing status HTML code
+            $(this).parent().remove();
+
+            // Delete file on the server
+            const fileName = $(this).attr('fileName');
+            // $.post('/delete/' + fileName);
+            $.ajax({
+                url: '/delete/' + fileName,
+                type: 'post',
+                success: function (result) {
+                    // Do something with the result
+                    console.log(result);
+                }
+            });
+
+
+            // Remove filename from uploadedFiles array
+            console.log(fileName)
+            uploadedFiles = uploadedFiles.filter(e => !e.includes(fileName))
+        });
+    </script>
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>File Explorer</title>
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> -->
+  <link rel="stylesheet" href="/assets/cdn/mdb-ui-kit_6.1.0_mdb.dark.min.css">
+  <style>
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-5">File Explorer</h1>
+    <div id="root"></div>
+  </div>
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+  <script src="/assets/cdn/jquery-3.6.3.min.js"></script>
+  <script>
+    $(document).ready(() => {
+      $.get("/explorer/json", data => {
+        $.each(data, (i, file) => {
+          let fileElement = $("<div>", { class: "mb-3" });
+          let fileName = $("<span>", { text: file.name });
+          fileElement.append(fileName);
+          if (file.isDirectory) {
+            fileName.append("(Directory)");
+            let contents = $("<div>", { class: "ml-3 hidden" });
+            $.each(file.contents, (i, content) => {
+              let contentElement = $("<div>", { class: "mb-3" });
+              let contentName = $("<span>", { text: content.name });
+              contentElement.append(contentName);
+              if (content.isDirectory) {
+                contentName.append("(Directory)");
+                let subContents = $("<div>", { class: "ml-3 hidden" });
+                contentElement.append(subContents);
+                contentElement.on("click", function (e) {
+                  e.stopPropagation();
+                  subContents.toggleClass("hidden");
+                });
+                if (content.contents) {
+                  $.each(content.contents, (i, subContent) => {
+                    let subContentElement = $("<div>", { text: subContent.name });
+                    if (subContent.isDirectory) {
+                      subContentElement.append("(Directory)");
+                    }
+                    subContents.append(subContentElement);
+                  });
+                }
+              }
+              contents.append(contentElement);
+            });
+            fileElement.append(contents);
+            fileElement.on("click", function () {
+              contents.toggleClass("hidden");
+            });
+          }
+          $("#root").append(fileElement);
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

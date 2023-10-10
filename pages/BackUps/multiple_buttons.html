@@ -1,0 +1,58 @@
+<!-- HTML form for uploading files -->
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <div id="fileInputsContainer"></div>
+    <button type="button" onclick="addFileInput()">Add more files</button>
+    <button type="submit">Upload</button>
+</form>
+<div>
+    <progress id="total-progress-bar" value="0" max="100"></progress>
+    <span id="total-progress-percentage"></span>
+</div>
+
+<script>
+    let fileInputs = 1;
+
+    function addFileInput() {
+        const container = document.querySelector('#fileInputsContainer');
+        const newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.name = 'files';
+        newInput.multiple = true;
+        newInput.id = 'file' + fileInputs;
+        container.appendChild(newInput);
+        fileInputs++;
+    }
+
+    // Listen for form submit
+    document.querySelector('form').addEventListener('submit', e => {
+        e.preventDefault();
+
+        // Get all file inputs
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        // Create a new FormData object
+        const formData = new FormData();
+        // Add the files to the FormData object
+        for (let i = 0; i < fileInputs.length; i++) {
+            for (let j = 0; j < fileInputs[i].files.length; j++) {
+                formData.append('files', fileInputs[i].files[j]);
+            }
+        }
+
+        // Create a new XHR object
+        const xhr = new XMLHttpRequest()
+
+        // Listen for the upload progress
+        xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+                // Update the progress bar
+                const percentComplete = (e.loaded / e.total) * 100
+                document.querySelector('#total-progress-bar').value = percentComplete;
+                document.querySelector('#total-progress-percentage').innerHTML = percentComplete + '%';
+            }
+        })
+
+        // Send the FormData object
+        xhr.open('POST', '/upload')
+        xhr.send(formData)
+    })
+</script>

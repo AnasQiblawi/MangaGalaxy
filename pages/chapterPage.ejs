@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Chapters List</title>
+    <%- include("_parts/_headers.ejs", {}) %>
+
+    <style>
+        .href, .pointer {
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background-color: #4c4c4c;
+        }
+        #imagesList img {
+            /* object-fit: cover; */
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <div id="fullBody">
+        <!-- Container -->
+        <div class="container">
+            <div class=" my-4">
+
+                <nav class="navbar navbar-expand-lg navbar-dark rounded-3 bg-gray m-2">
+                    <div class="container-fluid">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                <li class="breadcrumb-item"><a href="./"><%- manhwaName %></a></li>
+                                <li class="breadcrumb-item active" aria-current="page"><a href="#"><%- chapterName %></a></li>
+                            </ol>
+                        </nav>
+                        
+
+
+                        <!-- Avatar -->
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuAvatar"
+                                role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                                <img src="/assets/imgs/user.webp" class="rounded-circle" height="25"
+                                    alt="Black and White Portrait of a Man" loading="lazy" />
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+                                <li><a class="dropdown-item" href="#">My profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                        </div>
+                        <!-- End - Avatar -->
+
+
+                    </div>
+                </nav>
+                
+                <!-- Top Banner -->
+                <div class="rounded-3 px-0 m-0 my-4 mx-2 bg-gray shadow-3-strong" id="top">
+                    <div class="container-fluid d-flex align-items-center justify-content-between align-items-stretch p-0 m-0" style="min-height: 100px;">
+                        <!-- Left Side -->
+                        <div style="width: 100%;" class="gif-bg" ></div>
+                        <!-- Right Side -->
+                        <button type="button" id="AddChapterButton" sound="6" 
+                            class="btn btn-primary href" style="width: 150px;" 
+                            href="./<%- chapterName %>/upload">
+                            + add images
+                        </button>
+                    </div>
+                </div>
+
+
+
+                <!-- Images -->
+                <div class="mx-2 mb-3 rounded-3" style="min-height: 60vh; background-color: #404040;">
+                    <div id="imagesList" class="m-0 p-0 rounded-3"></div>
+                </div>
+
+            </div>
+        </div> <!-- End - Container --> 
+    </div>
+
+    <!-- MDB -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/mdb-ui-kit_6.1.0_mdb.min.js"></script>
+    <!-- jquery -->
+    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/jquery-3.6.3.min.js"></script>
+    <!-- jquery UI -->
+    <!-- <script defer src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script> -->
+    <script defer src="/assets/cdn/1.13.1_jquery-ui.min.js"></script>
+
+ 
+
+
+    <script>
+        const manhwaName = `<%- manhwaName %>`;
+        const chapterName = `<%- chapterName %>`;
+
+        
+        // Generate Chapters List
+        refreshImagesList()
+        function refreshImagesList() {
+            $.ajax({
+                type: "GET",
+                url: `/api/manhwa/${manhwaName}/${chapterName}/imgs`,
+                dataType: "json",
+                success: function (res) { 
+                    BuildImagesList(res.imagesList) 
+                }
+            })
+        };
+
+
+        // Generate images List
+        function BuildImagesList(imagesList) {
+            imagesList.filter(image => !image.isDirectory).forEach((image, i) => {
+                $("#imagesList").append(`
+                    <div>
+                        <img src="/imgs/${manhwaName}/${chapterName}/${image.name}" alt="image${i + 1}">
+                        <!-- <button class="delete-button">Delete</button> -->
+                    </div>`);
+            });
+        };
+        
+
+
+        // Sortable
+        // $("#imagesList").sortable({
+        //     items: "div",
+        //     handle: "img",
+        //     update: function (event, ui) {
+        //         var newImageArray = [];
+        //         $("#sortable-list ul div img").each(function () {
+        //             newImageArray.push($(this).attr("src"));
+        //         });
+        //         imageArray = newImageArray;
+        //         console.log(imageArray);
+        //     }
+        // });
+
+
+
+        // $(".delete-button").click(function () {
+        //     var imageToDelete = $(this).prev().attr("src");
+        //     var index = imageArray.indexOf(imageToDelete);
+        //     imageArray.splice(index, 1);
+        //     $(this).parent().remove();
+        // });
+
+
+
+
+        // Scroll on click 
+        $(document).on("click", "#imagesList", function () {
+            $("html, body").animate({
+                scrollTop: $(document).scrollTop() + 500
+            }, 200);
+        });
+
+
+        
+
+        
+        // File size readable formats
+        // formatFileSize(5000, 2) == 5 KB
+        function formatFileSize(bytes, decimalPoint) {
+            if (bytes == 0) return "0 Bytes";
+            var k = 1000,
+                dm = decimalPoint || 2,
+                sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+                i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+        };
+
+
+
+
+        // Strech Screen while only on the reading part ---------------------------------------------------------
+        // is element visible on screen ?
+        $.fn.isVisible = function () {
+            let elementHeight = $(this).outerHeight();
+            let elementTop = $(this).offset().top;
+            let elementBottom = elementTop + elementHeight;
+
+            let viewportTop = $(window).scrollTop();
+            let viewportBottom = viewportTop + $(window).height();
+
+            // reterun true if any part of the element is visible on screen
+            return elementBottom > viewportTop && elementTop < viewportBottom;
+
+            // reterun true if full element is visible on screen
+            // return elementBottom > viewportTop && (elementTop + elementHeight) < viewportBottom;
+
+            // reterun true if half or more of the element is visible on screen
+            // return elementBottom > viewportTop && (elementTop + elementHeight / 2) < viewportBottom;
+        };
+
+        // Visibilty event listener
+        window.addEventListener("scroll", function () { 
+            const TopElement = document.querySelector('#top');
+            const visible = $(TopElement).isVisible();
+            
+            // Edit Element CSS
+            const EditElement = document.querySelector('.container');
+            EditElement.style.transition = "all 0.5s ease"
+            if (visible) {
+                EditElement.style.maxWidth = '';
+                EditElement.style.padding = '';
+            }
+            if (!visible) {
+                EditElement.style.maxWidth = window.innerWidth < 600 ? '100vw' : '50vw'; // to support multiple screen sizes
+                EditElement.style.padding = '0';
+            }
+        });
+        // ---------------------------------------------------------------------------------------------------------------
+    </script>
+
+
+
+
+    <!-- Alert Sounds -->
+    <%- include("_parts/_alertSounds.ejs", {}) %>
+
+
+    <!-- MiniMap -->
+    <%- include("_parts/_miniMap.ejs", {}) %>
+    
+
+    <!-- Scripts that I need at the end of my code -->
+    <%- include("_parts/_scripts_footer.ejs", {}) %>
+</body>
+
+
+</html>
+
+

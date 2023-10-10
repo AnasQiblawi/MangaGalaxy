@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <%- include("_parts/_headers.ejs", {}) %>
+
+    <style>
+    
+        /* #uploadingFilesArea {
+            min-height: 50vh;
+        } */
+
+
+        /* - - - Drag & Drop Area - - - */
+        #drop-area {
+          border: 5px dashed #ccc;
+          /* padding: 20px; */
+          text-align: center;
+          cursor: pointer;
+        }
+      
+        #drop-area p {
+          margin: 10px 0;
+          font-size: 18px;
+        }
+      
+        /*
+        #inputFileMultiple {
+          display: none;
+        } */
+      </style>
+</head>
+
+
+
+<body>
+
+    <div class="container">
+        <div class="row row-cols-1 p-3 my-5 mx-0 bg-light bg-gradient text-black rounded-3 shadow-3-strong">
+
+            <!-- Drop Area > Form -->
+            <div id="drop-area" class="mb-3 mx-0 p-4 rounded-3">
+                <!-- Form -->
+                <form action="./upload" id="form" method="post" enctype="multipart/form-data" class="row">
+                    <!-- <label for="inputFileMultiple" class="form-label text-black">Multiple files input example</label> -->
+                    <p>Drag and drop files here or click to browse</p>
+                    <input hidden class="form-control form-control-lg  text-muted my-1" type="file" id="inputFileMultiple" accept="image/*" multiple>
+                    <input class="btn btn-primary my-1" type="submit" value="Upload" id="submitButton" hidden />
+                </form>
+            </div>
+            <!-- END - Drop Area > Form -->
+
+
+            <!-- Scrollable area -->
+            <div class="overflow-auto rounded-3 py-1 px-0 mx-0" id="uploadingFilesArea">
+
+
+
+
+                                    <!-- Example - single uploading file process -->
+                                    <div hidden class="row align-items-center p-1 my-1 mx-0 col-12 rounded-3" style="background-color: #7299cb21 !important;">
+                                        <!-- Image -->
+                                        <div class="col-3 col-sm-2 col-lg-1 align-items-center flex-column d-flex">
+                                            <i class="fas fa-4x fa-image" style="color: #4f4f4f;"></i>
+                                        </div>
+
+                                        <div class="col-8 col-sm-9 col-lg-10 py-2">
+                                            <!-- File name -->
+                                            <h5 class="card-title text-truncate">File name aaaaaaaaaaaaaaaaaaaaa.jpg</h5>
+                                            <p class="card-text"></p>
+
+                                            <!-- Progress Bar -->
+                                            <div class="row align-items-center g-3">
+                                                <div class="col-11">                                
+                                                    <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                                        style="background-color: lightskyblue;">
+                                                        <div id="${id}" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 30%"></div>
+                                                    </div>
+                                                </div>
+                                                <small class="col-1" id="${id}_percentage">30%</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- <div class=""> -->
+                                        <!-- Delete -->
+                                        <div class="col-1">
+                                            <a style="color: rgb(245, 64, 64);" role="button" class="float-end delete" fileName="${file.name}">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                    <!-- END - Example -->
+
+
+
+            </div> <!-- Scrollable area -->
+
+            <!-- Next -->
+            <!-- <hr> -->
+            <button type="button" class="btn btn-success mt-3 href" href="./">D o n e</button>
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- MDB -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/mdb-ui-kit_6.1.0_mdb.min.js"></script>
+    <!-- jquery -->
+    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.3.min.js"></script> -->
+    <script type="text/javascript" src="/assets/cdn/jquery-3.6.3.min.js"></script>
+    
+
+
+
+
+
+    <script defer>
+        
+        // Drop files ----------------------------------------------------------------------
+        let dropAreaFiles = [];
+        function handleFiles(files) {
+            dropAreaFiles = files;
+            // Handle the files here (e.g. upload to a server)
+            console.log(files);
+            $("#submitButton").click();
+        }
+
+        // Allow "drop" event on the drop area
+        let dropArea = document.getElementById("drop-area");
+        document.getElementById("drop-area").onclick = () => document.querySelector('#inputFileMultiple').click()
+        dropArea.addEventListener("dragenter", preventDefaults, false);
+        dropArea.addEventListener("dragover", preventDefaults, false);
+        dropArea.addEventListener("dragleave", preventDefaults, false);
+        dropArea.addEventListener("drop", preventDefaults, false);
+        dropArea.addEventListener("drop", handleDrop, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+
+            handleFiles(files);
+        };
+        // END - Drop files -----------------------------------------------------------------
+
+
+
+
+
+        // Auto Submit
+        $("#inputFileMultiple").change(function () {
+            // $("#form").submit();
+            $("#submitButton").click();
+        });
+
+        // All uploaded files array
+        let uploadedFiles = <%- uploadedFiles %> // eg. == ["fileName1.ext", "fileName2.ext"]
+        // add old uploaded files info to ui
+        uploadedFiles.forEach((fileName, i) => addFileToHTML(fileName, i, 100));
+
+
+
+        // Listen for form submit
+        document.querySelector("#form").addEventListener("submit", e => {
+            e.preventDefault();
+            // Get the file input
+            const fileInput = document.querySelector("#inputFileMultiple"); // Click and select files
+            if (dropAreaFiles.length) fileInput.files = dropAreaFiles; // Drop Area files
+            
+            let acceptedFiles = []; // only image files will be added to this array, these will be uploaded only.
+            let isValid = true;
+            let errorMessage = "";
+
+            // Validate file input
+            if (!fileInput.files.length) {
+                errorMessage = "Please select at least one file to upload.";
+                isValid = false;
+            }
+
+            // Only accept image files
+            for (let i = 0; i < fileInput.files.length; i++) {
+                // if (!fileInput.files[i].type.match(/image\/.*/)) {
+                //     errorMessage = fileInput.files[i].name + " is not an image file.";
+                //     isValid = false;
+                //     break;
+                // }
+                acceptedFiles.push(fileInput.files[i])
+                console.log(fileInput.files[i])
+            }
+
+            if (!isValid) {
+                // Handle errors
+                console.error(errorMessage);
+                alert(errorMessage);
+                return;
+            }
+
+
+
+            // already Uploaded Files Alert
+            const alreadyUploadedFilesArrayAlert = acceptedFiles.filter(file => uploadedFiles.includes(file.name)).map(file => file.name)
+            if (alreadyUploadedFilesArrayAlert.length) {
+                alert("Alredy Uploaded Files :\n" + alreadyUploadedFilesArrayAlert.join("\n"));
+            }
+
+
+
+
+            // Start Uploading
+            acceptedFiles
+                // filter files alredy uploaded, return only new files.
+                .filter(file => !uploadedFiles.includes(file.name)) // + file.size
+                .forEach(file => {
+                    // Update uploaded files array
+                    uploadedFiles.push(file.name); // + file.size
+
+                    // Create a new id for this uploading session
+                    let id = randomId(5) //Date.now();
+
+                    // add uploading info to ui
+                    addFileToHTML(file.name, id, 0)
+
+
+                    // Create a new FormData object
+                    const formData = new FormData();
+                    formData.append("files", file);
+
+                    // Create a new XHR object
+                    const xhr = new XMLHttpRequest()
+
+                    // Listen for the upload progress
+                    xhr.upload.addEventListener("progress", e => {
+                        if (e.lengthComputable) {
+                            // Update the progress bar
+                            const percentComplete = (e.loaded / e.total) * 100;
+                            $("#" + id).css("width", percentComplete + "%"); // progress bar
+                            $(`#${id}_percentage`).text((percentComplete == 100 ? 100 : percentComplete.toFixed(2)) + "%"); // Percentage
+                        }
+                    });
+
+
+
+
+
+                    // Listen for response after upload
+                    xhr.addEventListener("load", e => {
+                        // Succefull upload
+                        if (xhr.status === 200) {
+                            // alert("Upload Successful!");
+                        } 
+                        
+                        // Error Upload
+                        else {
+                            // Remove not uploaded files from "uploadedFiles" array
+                            const file_index = uploadedFiles.indexOf(file.name) // + file.size);
+                            uploadedFiles.slice(file_index)
+                            // alert
+                            alert("Error uploading files: " + file.name);
+                        }
+                    });
+
+
+
+                    // Send the FormData object
+                    xhr.open("POST", "./upload");
+                    xhr.send(formData);
+
+                    // Reset drop area files array
+                    dropAreaFiles = [];
+
+                }); // end sending files
+
+        
+
+        }); // end form submit functionallty
+
+
+
+        // add uploading info to ui
+        function addFileToHTML(fileName, id, progress = 0) { 
+            $("#uploadingFilesArea").append(`
+                <!-- single uploading file process -->
+                <div class="row align-items-center p-0 my-1 m-0 col-12 rounded-3" style="background-color: #7299cb21 !important; display: none" id="file_${id}">
+                    <!-- Image -->
+                    <div class="col-3 col-sm-2 col-lg-1 align-items-center flex-column d-flex" style="min-width: 64px;">
+                        <i class="fas fa-4x fa-image" style="color: #4f4f4f;"></i>
+                    </div>
+
+                    <div class="col-8 col-sm-9 col-lg-10 py-2">
+                        <!-- File name -->
+                        <h5 class="card-title text-truncate">${fileName}</h5>
+                        <p class="card-text"></p>
+
+                        <!-- Progress Bar -->
+                        <div class="row align-items-center g-3">
+                            <div class="col-11">                                
+                                <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="background-color: lightskyblue;">
+                                    <div id="${id}" class="progress-bar progress-bar-striped progress-bar-animated" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                            <small class="col-1" id="${id}_percentage">${progress}%</small>
+                        </div>
+                    </div>
+
+                    <!-- <div class=""> -->
+                    <!-- Delete -->
+                    <div class="col-1">
+                        <a style="color: rgb(245, 64, 64);" role="button" class="float-end delete" fileName="${fileName}">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+
+                </div>
+            `)
+            $("#file_" + id).show(200);
+        };
+        
+
+        // Delete Button
+        $(document).on("click", ".delete", function () {
+            // this.preventDefault();
+
+            // Remove uplodeing status HTML code
+            $(this).parent().parent().remove();
+
+            // Delete file on the server
+            const fileName = $(this).attr("fileName");
+            // $.post("/delete/" + fileName);
+            $.ajax({
+                url: "./delete/" + fileName,
+                type: "DELETE",
+                success: function (result) {
+                    // Do something with the result
+                    console.log(result);
+                }
+            });
+
+
+            // Remove filename from uploadedFiles array
+            console.log(fileName)
+            uploadedFiles = uploadedFiles.filter(e => !e.includes(fileName))
+        });
+
+
+
+
+
+
+        // File size readable formats
+        // formatFileSize(5000, 2) == 5 KB
+        function formatFileSize(bytes, decimalPoint) {
+            if (bytes == 0) return "0 Bytes";
+            var k = 1000,
+                dm = decimalPoint || 2,
+                sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+                i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+        };
+
+
+
+
+        // Random id
+        function randomId(length = 24) {
+            const heyStack = "0123456789abcdefghijklmnopqrstuvwxyz";
+            const randomInt = () => Math.floor(Math.random() * Math.floor(heyStack.length));
+            return Date.now() + "_" + Array.from({ length }, () => heyStack[randomInt()]).join("");
+        };
+
+
+    </script>
+
+
+
+
+    <!-- Scripts that I need at the end of my code -->
+    <%- include("_parts/_scripts_footer.ejs", {}) %>
+
+
+</body>
+
+
+</html>

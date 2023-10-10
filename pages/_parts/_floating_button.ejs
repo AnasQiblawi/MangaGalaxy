@@ -1,0 +1,247 @@
+<!-- CSS -->
+<style>
+    :root {
+        --floting-button-radius: 50px;
+    }
+
+    #float-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: var(--floting-button-radius);
+        height: var(--floting-button-radius);
+        border-radius: var(--floting-button-radius);
+        background: linear-gradient(to right, #4CAF50, #00bcd4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        transition: background 1s ease-in-out;
+        /* transition: all 0.5s ease; */
+        /* transition: left 0.3s ease, top 0.3s ease; */
+    }
+
+    #float-btn button {
+        color: white;
+        font-size: 18px;
+        border: none;
+        background: transparent;
+    }
+
+    #float-btn:hover {
+        animation: pulse 1s infinite;
+        background: linear-gradient(to left, #4CAF50, #00bcd4);
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+    }
+
+    #float-btn i {
+        font-size: 25px;
+    }
+
+    #float-btn svg {
+        height: var(--floting-button-radius);
+        width: var(--floting-button-radius);
+    }
+
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>
+
+
+
+
+<!-- HTML -->
+<div id="float-btn">
+    <button  id="drag-btn">
+        <!-- Arrow up -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-arrow-up-short" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z" /></svg>
+        <!-- + Plus -->
+        <!-- https://fontawesomeicons.com/svg/icons/plus -->
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"> <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/> </svg>  -->
+    </button>
+</div>
+
+
+
+
+<!-- JS -->
+<script>
+
+    // Desktop & Phone
+    let floatBtn = document.getElementById("float-btn");
+    let dragBtn = document.getElementById("drag-btn");
+
+
+    // Location - true == button go to left side
+    // only works on PC now
+    if (localStorage.getItem('FloatingBtnLocation') == 'left') floatBtn.style.left = '20px';
+
+    // Variables
+    let isDown = false;
+    // (steps) counter usage:
+    // the number will increse while draging, 
+    // it will be used so if we didn't drag a lot and maybe just click, 
+    // only then will the scolling to top work
+    let steps = 0;
+    
+    // Prevent right click menu, only on Floting button
+    dragBtn.addEventListener('contextmenu', function (e) { 
+        e.preventDefault();
+    }, false);
+
+
+
+
+    // Desktops - mouse events ---------------------------------------------
+    dragBtn.addEventListener("mousedown", startDrag);
+    document.addEventListener("mouseup", stopDrag);
+    document.addEventListener("mousemove", drag);
+    
+    // 
+    let offsetX;
+    let offsetY;
+
+    // mousedown - event
+    function startDrag(e) {
+        // Reset steps counter
+        steps = 0
+
+        // if (isDown) { e.preventDefault() } else return
+        e.preventDefault()
+        isDown = true;
+        floatBtn.style.transition = 'all 0.1s ease';
+        offsetX = floatBtn.offsetLeft - e.clientX;
+        offsetY = floatBtn.offsetTop - e.clientY;
+    };
+
+    // mouseup - event
+    function stopDrag(e) {
+        if (isDown) { e.preventDefault() } else return
+
+        isDown = false;
+        // floatBtn.style.transition = 'all 1s ease';
+        floatBtn.style.transition = 'left 0.5s ease, bottom 0.8s ease, right 0.5s ease, top 0.4s ease';
+
+        floatBtn.style.bottom = '20px';
+        floatBtn.style.top = 'auto';
+        
+        // Go Right
+        if (e.clientX > window.innerWidth / 2) {
+            localStorage.setItem('FloatingBtnLocation', 'right');
+            floatBtn.style.right = '20px';
+            floatBtn.style.left = 'auto';
+        };
+        // Go Left
+        if (e.clientX < window.innerWidth / 2) {
+            localStorage.setItem('FloatingBtnLocation', 'left');
+            floatBtn.style.left = '20px';
+            floatBtn.style.right = 'auto';
+        };
+    }
+
+    // mousemove - event
+    function drag(e) {
+        if (isDown) { e.preventDefault() } else return
+        // increase steps
+        ++steps
+        
+        floatBtn.style.left = (e.clientX + offsetX) + 'px';
+        floatBtn.style.top = (e.clientY + offsetY) + 'px';
+        floatBtn.style.right = window.innerWidth -  (e.clientX - offsetX) + 'px';
+        floatBtn.style.bottom = window.innerHeight - (e.clientY - offsetY) + 'px';
+    };
+    // ---------------------------------------------------------------------
+
+
+
+
+
+
+    // Mobile Phones - Touch events ------------------------------------------
+    let startX, startY;
+    // Events
+    dragBtn.addEventListener("touchstart", startDragPhone);
+    document.addEventListener("touchend", stopDragPhone);
+    document.addEventListener("touchmove", dragPhone);
+
+    // touchstart - event
+    function startDragPhone(e) {
+        // Reset steps counter
+        steps = 0
+
+        // if (isDown) { e.preventDefault() } else return
+        e.preventDefault();
+        isDown = true;
+        floatBtn.style.transition = 'all 0.1s ease';
+        startX = e.touches[0].clientX - floatBtn.offsetLeft;
+        startY = e.touches[0].clientY - floatBtn.offsetTop;
+    };
+
+    // touchend - event
+    function stopDragPhone(e) {
+        if (isDown) { e.preventDefault() } else return
+
+        isDown = false;
+        // floatBtn.style.transition = 'all 0.5s ease';
+        floatBtn.style.transition = 'left 0.5s ease, bottom 0.8s ease, right 0.5s ease, top 0.4s ease';
+
+        floatBtn.style.bottom = '20px';
+        floatBtn.style.top = 'auto';
+
+        let windowWidth = window.innerWidth;
+        let currentX = floatBtn.offsetLeft;
+        let currentY = floatBtn.offsetTop;
+
+        if (currentX > windowWidth / 2) {
+            floatBtn.style.left = "auto";
+            floatBtn.style.right = "20px";
+        } else {
+            floatBtn.style.left = "20px";
+            floatBtn.style.right = "auto";
+        }
+    };
+
+    // touchmove - event
+    function dragPhone(e) {
+        if (isDown) { e.preventDefault() } else return
+        // increase steps
+        ++steps
+
+        let x = e.touches[0].clientX - startX;
+        let y = e.touches[0].clientY - startY;
+        floatBtn.style.left = x + "px";
+        floatBtn.style.top = y + "px";
+        floatBtn.style.right = window.innerWidth - e.touches[0].clientX - startX + "px";
+        floatBtn.style.bottom = window.innerHeight - e.touches[0].clientY - startY + "px";
+    };
+    // ---------------------------------------------------------------------
+    
+
+
+    
+
+    // Scroll to top
+    floatBtn.addEventListener("click", scrollToTop); // PC
+    floatBtn.addEventListener("touchend", scrollToTop); // Phone
+    function scrollToTop() {
+        if (steps < 5) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+    };
+</script>

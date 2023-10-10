@@ -1,0 +1,75 @@
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+<!-- <link href="/assets/cdn/font-awesome_6.0.0_css_all.min.css" rel="stylesheet" /> -->
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+<!-- <link href="/assets/cdn/font.css" rel="stylesheet" /> -->
+<!-- MDB -->
+<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.dark.min.css" rel="stylesheet" /> -->
+<link href="/assets/cdn/mdb-ui-kit_6.1.0_mdb.dark.min.css" rel="stylesheet" />
+
+<!-- Sweet Alert 2 -->
+<!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+<!-- <link href="//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet"> -->
+<link href="/assets/cdn/sweetalert2_theme-dark_dark.css" rel="stylesheet">
+<script src="/assets/cdn/sweetalert2.all.min.js"></script>
+
+<style>
+    :root {
+        color-scheme: dark;
+    }
+
+    html,
+    body {
+        padding: 0px;
+        margin: 0px;
+        min-height: 100%;
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+    .bg-gray {
+        background-color: var(--mdb-gray-dark);
+    }
+
+    .gif-bg {
+        background-image: linear-gradient(rgba(23, 22, 22, 0.37), rgba(23, 23, 23, 0.355)), url(/assets/imgs/water_waves.gif);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+
+    .gif-banner {
+        background-image: linear-gradient(rgba(66, 66, 66, 0.37), rgba(66, 66, 66, 0.33)), url(/assets/imgs/hud_banner_1.gif);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+    
+    /*  hidden until hover over parent ---------------------------------------------------------------------- 
+        - https://stackoverflow.com/questions/4502633/how-to-affect-other-elements-when-one-element-is-hovered
+    */
+    .showMyChild:hover .hiddenChild{
+        display: block;
+    }
+    .hiddenChild {
+        display: none;
+    }
+    /*  smartphones, touchscreens
+        - https://ferie.medium.com/detect-a-touch-device-with-only-css-9f8e30fa1134
+        - https://stackoverflow.com/questions/16550485/hide-div-tag-on-mobile-view-only
+    */
+    @media (hover: none) {
+        .hiddenChild {
+            display: block;
+        }
+    }
+    /* END - hidden until hover --------------------------------------------------------------------------- */
+</style>
+
+
