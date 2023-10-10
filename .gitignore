@@ -1,4 +1,5 @@
 node_modules
+manhwas/*
 package-lock.json
 .env
 pnpm-lock.yaml
